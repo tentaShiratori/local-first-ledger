@@ -22,20 +22,21 @@
 | TypeScript | `^7`（strict） | [TypeScript](https://www.typescriptlang.org/) 現行系。`engines.node >= 16.20.0` |
 | Vitest | `^5` | [Vitest Getting Started](https://vitest.dev/guide/): Node `>=22.12.0`、Vite `>=6.4.0` |
 
-ローカル PC のグローバル設定変更は不要です。再現可能な設定はこのリポジトリに含めます。
+再現可能な設定はこのリポジトリに含めます。セットアップはプロジェクト単位で完結する方法を主とします。
 
 ## 初回セットアップ
 
-前提: Node.js 22.12 以上（推奨: 現行 LTS）と Corepack、または pnpm 10 以上。
+前提: Node.js 22.12 以上（推奨: 現行 LTS）。パッケージマネージャは pnpm 10 以上（`package.json` の `packageManager` は `pnpm@10.33.4`）。
 
 ```bash
-# Corepack で packageManager フィールドどおりの pnpm を有効化する場合
-corepack enable
-corepack prepare pnpm@10.33.4 --activate
-
-# 依存関係を lockfile からインストール
+# 推奨: 既に pnpm 10 以上がある場合（プロジェクト単位）
 pnpm install --frozen-lockfile
+
+# pnpm が PATH に無い場合の例（npx で指定版を一時利用。グローバル設定は変えない）
+npx pnpm@10.33.4 install --frozen-lockfile
 ```
+
+任意: Corepack でマシン全体に pnpm を載せる場合は `corepack enable` と `corepack prepare pnpm@10.33.4 --activate` を使う。これはグローバル設定の変更を伴うため、必須ではない。
 
 ## 検証手順
 

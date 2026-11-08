@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+dist/
+
+# Test / tooling caches
+.vitest/
+coverage/
+*.tsbuildinfo
+.yomiyasu/
+.yomiyasu-work/
+__pycache__/
+*.pyc
+
+# Logs and local env
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

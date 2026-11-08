@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+.venv/
 
 # Build outputs
 dist/
@@ -8,6 +9,10 @@ dist/
 .vitest/
 coverage/
 *.tsbuildinfo
+.yomiyasu/
+.yomiyasu-work/
+__pycache__/
+*.pyc
 
 # Logs and local env
 npm-debug.log*

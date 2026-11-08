@@ -10,18 +10,19 @@
 | --- | --- |
 | ある | `docs/plan/v0.1.0.md`（v0.1.0 の計画） |
 | ある | TypeScript strict の最小 Node.js 開発・テスト環境 |
-| ある | mise による Node / pnpm / skills CLI の版固定 |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定 |
 | ない | G-Counter / 後勝ちレジスタ / 収束テスト |
 | 注意 | 型チェック・ビルド・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
 
-## 固定している版
+## 固定しているバージョン
 
-| 対象 | 固定版 | 置き場 |
+| 対象 | 固定バージョン | 置き場 |
 | --- | --- | --- |
 | mise（前提ツール） | `2026.11.4` で検証 | マシンへ別途導入（下記） |
 | Node.js | `22.23.4` | `mise.toml` / `mise.lock` |
 | pnpm | `10.33.4` | `mise.toml` / `mise.lock` / `package.json#packageManager` |
 | skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills` |
+| Python | `3.13.18` | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
 | TypeScript / Vitest | lockfile どおり（`pnpm-lock.yaml`） | `package.json` |
 
 `package.json` の `engines.node` は `^22.20.0 \|\| ^24.0.0 \|\| >=26.0.0` です。skills CLI の公式要件に合わせています。
@@ -52,13 +53,24 @@ mise exec -- pnpm build
 mise exec -- pnpm test run
 ```
 
-個別の環境確認用テスト:
+個別の環境確認用テストは次のとおりです。
 
 ```bash
 mise exec -- pnpm test run src/env-smoke.test.ts
 ```
 
 `src/env-smoke.test.ts` は開発基盤の確認だけです。CRDT の収束テストではありません。
+
+### Python（yomiyasu 検査）
+
+`mise install` で Python `3.13.18` とプロジェクトの `.venv` が用意されます（`.venv/` は git 管理外）。yomiyasu 付属スクリプトは標準ライブラリだけで動くため、追加の pip パッケージは不要です。
+
+```bash
+mise exec -- python --version
+mise exec -- python -c 'import sys; print(sys.executable)'
+```
+
+文書検査の手順は `AGENTS.md` を見てください。
 
 ### mise を使わない場合（互換手順）
 
@@ -68,7 +80,7 @@ mise exec -- pnpm test run src/env-smoke.test.ts
 pnpm install --frozen-lockfile
 ```
 
-pnpm が PATH に無いときの一時利用（グローバル設定は変えない）:
+pnpm が PATH に無いときの一時利用は、グローバル設定を変えずに次を使います。
 
 ```bash
 npx pnpm@10.33.4 install --frozen-lockfile
@@ -78,7 +90,7 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 
 ## ドキュメント用スキル
 
-読みやすさの改善には、次をプロジェクトスコープで入れています。
+読みやすさの改善には次をプロジェクトスコープで入れています。
 
 | スキル | 導入先 | 取得元（固定） |
 | --- | --- | --- |
@@ -89,5 +101,5 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 
 ## 計画ドキュメント
 
-- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md) — 要件 7（自作 G-Counter / 後勝ちレジスタ）の計画と受け入れ条件
-- [AGENTS.md](./AGENTS.md) — ドキュメントを直すときの手順
+- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）の計画と受け入れ条件
+- [AGENTS.md](./AGENTS.md): ドキュメントを直すときの手順

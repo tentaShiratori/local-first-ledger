@@ -1,0 +1,13 @@
+# Exact tool pins for this repository (no latest / floating ranges).
+# npm backend: https://mise.jdx.dev/dev-tools/backends/npm.html
+# Verified with mise 2026.11.4 on linux-x64.
+#
+# These pins match package.json:
+# - engines.node includes 22.23.4
+# - packageManager = pnpm@10.33.4
+# - npm package "skills" (vercel-labs/skills) = 1.7.6
+
+[tools]
+node = "22.23.4"
+pnpm = "10.33.4"
+"npm:skills" = "1.7.6"

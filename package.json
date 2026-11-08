@@ -1,0 +1,22 @@
+{
+  "name": "local-first-ledger",
+  "version": "0.0.0",
+  "private": true,
+  "description": "家族共有のオフライン家計簿を作りながら CRDT を学ぶ学習用リポジトリ",
+  "type": "module",
+  "packageManager": "pnpm@10.33.4",
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}

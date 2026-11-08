@@ -85,7 +85,7 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 | `i-have-adhd` | `.agents/skills/i-have-adhd` | `ayghri/i-have-adhd@v0.4.1`（commit `1ecea1993b7fce257ffbd686c070948b5e07eda6`） |
 | `yomiyasu` | `.agents/skills/yomiyasu` | `nanaism/yomiyasu@v2.5.0`（commit `29d67ccb05e370b5958d72920a9cd1aa829dee80`） |
 
-再導入の記録は `skills-lock.json` と `AGENTS.md` を見てください。
+再導入の正規手順と固定リビジョンは `AGENTS.md` を見てください。`skills-lock.json` は記録補助であり、tag/commit の復元保証ではありません。
 
 ## 計画ドキュメント
 

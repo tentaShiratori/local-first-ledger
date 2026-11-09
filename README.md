@@ -11,9 +11,11 @@
 | ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき） |
 | ある | TypeScript strict の最小 Node.js 開発・テスト環境 |
 | ある | mise による Node / pnpm / skills CLI / Python のバージョン固定 |
+| ある | 品質チェック（typecheck / Biome lint・format / Knip / Vitest+カバレッジ80%） |
 | ない | G-Counter / 後勝ちレジスタ / 収束テスト |
 | ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入 |
-| 注意 | 型チェック・ビルド・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
+| ない | E2E（npm の `e2e` は Web/モバイル向けで、現状の Node 学習用コードには合わない） |
+| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
 
 ## 固定しているバージョン
 
@@ -25,8 +27,13 @@
 | skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills` |
 | Python | `3.13.18` | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
 | TypeScript / Vitest | lockfile どおり（`pnpm-lock.yaml`） | `package.json` |
+| Biome（lint / format） | `2.6.6`（完全固定） | `package.json` / `pnpm-lock.yaml` |
+| Knip（dead code） | `6.44.2`（完全固定） | `package.json` / `pnpm-lock.yaml` |
+| `@vitest/coverage-v8` | `5.1.0`（完全固定） | `package.json` / `pnpm-lock.yaml` |
 
 `package.json` の `engines.node` は `^22.20.0 \|\| ^24.0.0 \|\| >=26.0.0` です。skills CLI の公式要件に合わせています。
+
+品質ツールの選定: Biome は lint と format を1パッケージで賄い、ESLint+Prettier のような責務の衝突を避けます。Knip は未使用ファイル・export・依存を検出する TypeScript 向けの現行標準です。
 
 ## 初回セットアップ
 
@@ -46,21 +53,30 @@ mise ls --current
 mise exec -- pnpm install --frozen-lockfile
 ```
 
-3. 通ることを確認する
+3. 通ることを確認する（まとめて実行）
+
+```bash
+mise exec -- pnpm check
+```
+
+個別コマンドは次のとおりです。
 
 ```bash
 mise exec -- pnpm typecheck
+mise exec -- pnpm lint
+mise exec -- pnpm fmt
+mise exec -- pnpm deadcode
+mise exec -- pnpm test:coverage
 mise exec -- pnpm build
-mise exec -- pnpm test run
 ```
 
-個別の環境確認用テストは次のとおりです。
+書式を直すときは `mise exec -- pnpm fmt:write` です。環境確認用の個別テストは次のとおりです。
 
 ```bash
 mise exec -- pnpm test run src/env-smoke.test.ts
 ```
 
-`src/env-smoke.test.ts` は開発基盤の確認だけです。CRDT の収束テストではありません。
+`src/env-smoke.test.ts` と `pnpm check` の成功は開発基盤の確認だけです。CRDT の収束テストではありません。
 
 ### Python（yomiyasu 検査）
 

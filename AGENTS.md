@@ -109,12 +109,14 @@ INFO などの助言的指標は自動エラーと区別します。残す場合
 ```bash
 mise install
 mise exec -- pnpm install --frozen-lockfile
-mise exec -- pnpm typecheck
-mise exec -- pnpm build
-mise exec -- pnpm test run
+mise exec -- pnpm check
 mise exec -- pnpm test run src/env-smoke.test.ts
 mise exec -- skills list
 mise exec -- python --version
 ```
+
+`pnpm check` は typecheck / lint / fmt / deadcode / test:coverage / build を順に実行します。個別実行は `pnpm typecheck`、`pnpm lint`、`pnpm fmt`、`pnpm deadcode`、`pnpm test:coverage`、`pnpm build` です。書式修正は `pnpm fmt:write` です。
+
+品質ツール: Biome `2.6.6`（lint と format を1パッケージで賄い、責務の衝突を避ける）、Knip `6.44.2`（dead code）、Vitest カバレッジ（行・分岐・関数・文の閾値 80%）。npm の `e2e` は Web/モバイル向けです。現状の Node 学習用コードには導入していません。
 
 これらの成功は、開発環境が動くことの確認です。CRDT 本体の完了ではありません。

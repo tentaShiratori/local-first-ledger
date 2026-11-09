@@ -12,10 +12,19 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
-    "test": "vitest"
+    "lint": "biome lint --error-on-warnings .",
+    "fmt": "biome format .",
+    "fmt:write": "biome format --write .",
+    "deadcode": "knip",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "check": "pnpm typecheck && pnpm lint && pnpm fmt && pnpm deadcode && pnpm test:coverage && pnpm build"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.6",
     "@types/node": "^22.19.0",
+    "@vitest/coverage-v8": "5.1.0",
+    "knip": "6.44.2",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   }

@@ -32,17 +32,17 @@ Python の仮想環境 `.venv/` は mise がプロジェクト単位で作りま
 
 先に次を開いて内容を把握します。インストール用シェルスクリプトは盲目的に実行しません。
 
-| スキル | 読むファイル |
-| --- | --- |
-| `i-have-adhd` | `.agents/skills/i-have-adhd/SKILL.md` |
-| `yomiyasu` | `.agents/skills/yomiyasu/SKILL.md`（必要なら同ディレクトリの `references/`） |
+| スキル        | 読むファイル                                                                 |
+| ------------- | ---------------------------------------------------------------------------- |
+| `i-have-adhd` | `.agents/skills/i-have-adhd/SKILL.md`                                        |
+| `yomiyasu`    | `.agents/skills/yomiyasu/SKILL.md`（必要なら同ディレクトリの `references/`） |
 
 導入元の固定は次のとおりです。
 
-| スキル | 取得元 | 固定リビジョン |
-| --- | --- | --- |
+| スキル        | 取得元                                | 固定リビジョン                                                   |
+| ------------- | ------------------------------------- | ---------------------------------------------------------------- |
 | `i-have-adhd` | https://github.com/ayghri/i-have-adhd | tag `v0.4.1` / commit `1ecea1993b7fce257ffbd686c070948b5e07eda6` |
-| `yomiyasu` | https://github.com/nanaism/yomiyasu | tag `v2.5.0` / commit `29d67ccb05e370b5958d72920a9cd1aa829dee80` |
+| `yomiyasu`    | https://github.com/nanaism/yomiyasu   | tag `v2.5.0` / commit `29d67ccb05e370b5958d72920a9cd1aa829dee80` |
 
 プロジェクト配置と再導入は次のとおりです。
 
@@ -109,12 +109,14 @@ INFO などの助言的指標は自動エラーと区別します。残す場合
 ```bash
 mise install
 mise exec -- pnpm install --frozen-lockfile
-mise exec -- pnpm typecheck
-mise exec -- pnpm build
-mise exec -- pnpm test run
+mise exec -- pnpm check
 mise exec -- pnpm test run src/env-smoke.test.ts
 mise exec -- skills list
 mise exec -- python --version
 ```
+
+`pnpm check` は typecheck / lint / fmt / deadcode / test:coverage / build を順に実行します。個別実行は `pnpm typecheck`、`pnpm lint`、`pnpm fmt`、`pnpm deadcode`、`pnpm test:coverage`、`pnpm build` です。書式修正は `pnpm fmt:write` です。
+
+品質ツール: Vite+ `1.5.0`（`vp lint` / `vp fmt` / `vp test`。同梱 Oxlint・Oxfmt・Vitest）、fallow `3.41.0`（`fallow dead-code`）、カバレッジ閾値 80%（行・分岐・関数・文）。E2E は v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる方針です。
 
 これらの成功は、開発環境が動くことの確認です。CRDT 本体の完了ではありません。

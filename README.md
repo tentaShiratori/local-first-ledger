@@ -6,34 +6,34 @@
 
 ## いまできること / まだないもの
 
-| 状態 | 内容 |
-| --- | --- |
-| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき） |
-| ある | TypeScript strict の最小 Node.js 開発・テスト環境 |
-| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定 |
-| ある | 品質チェック（typecheck / Biome lint・format / Knip / Vitest+カバレッジ80%） |
-| ない | G-Counter / 後勝ちレジスタ / 収束テスト |
-| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入 |
-| ない | E2E（npm の `e2e` は Web/モバイル向けで、現状の Node 学習用コードには合わない） |
+| 状態 | 内容                                                                                          |
+| ---- | --------------------------------------------------------------------------------------------- |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                     |
+| ある | TypeScript strict の最小 Node.js 開発・テスト環境                                             |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                |
+| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                 |
+| ない | G-Counter / 後勝ちレジスタ / 収束テスト                                                       |
+| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入                                      |
+| ない | E2E（v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる）                                |
 | 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
 
 ## 固定しているバージョン
 
-| 対象 | 固定バージョン | 置き場 |
-| --- | --- | --- |
-| mise（前提ツール） | `2026.11.4` で検証 | マシンへ別途導入（下記） |
-| Node.js | `22.23.4` | `mise.toml` / `mise.lock` |
-| pnpm | `10.33.4` | `mise.toml` / `mise.lock` / `package.json#packageManager` |
-| skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills` |
-| Python | `3.13.18` | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
-| TypeScript / Vitest | lockfile どおり（`pnpm-lock.yaml`） | `package.json` |
-| Biome（lint / format） | `2.6.6`（完全固定） | `package.json` / `pnpm-lock.yaml` |
-| Knip（dead code） | `6.44.2`（完全固定） | `package.json` / `pnpm-lock.yaml` |
-| `@vitest/coverage-v8` | `5.1.0`（完全固定） | `package.json` / `pnpm-lock.yaml` |
+| 対象                                    | 固定バージョン                                                                           | 置き場                                                           |
+| --------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| mise（前提ツール）                      | `2026.11.4` で検証                                                                       | マシンへ別途導入（下記）                                         |
+| Node.js                                 | `22.23.4`                                                                                | `mise.toml` / `mise.lock`                                        |
+| pnpm                                    | `10.33.4`                                                                                | `mise.toml` / `mise.lock` / `package.json#packageManager`        |
+| skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills`                                      |
+| Python                                  | `3.13.18`                                                                                | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
+| TypeScript                              | lockfile どおり（`pnpm-lock.yaml`）                                                      | `package.json`                                                   |
+| Vite+（lint / format / test）           | `1.5.0`（catalog 固定。同梱 Oxlint / Oxfmt / Vitest 5.1.0）                              | `pnpm-workspace.yaml` / `package.json`                           |
+| fallow（dead code）                     | `3.41.0`（完全固定）                                                                     | `package.json` / `pnpm-lock.yaml`                                |
+| `@vitest/coverage-v8`                   | `5.1.0`（catalog 固定）                                                                  | `pnpm-workspace.yaml` / `package.json`                           |
 
 `package.json` の `engines.node` は `^22.20.0 \|\| ^24.0.0 \|\| >=26.0.0` です。skills CLI の公式要件に合わせています。
 
-品質ツールの選定: Biome は lint と format を1パッケージで賄い、ESLint+Prettier のような責務の衝突を避けます。Knip は未使用ファイル・export・依存を検出する TypeScript 向けの現行標準です。
+品質ツールの選定: Vite+ は VoidZero の統合ツールチェーンで、lint（Oxlint）と format（Oxfmt）と test（Vitest）を同じ `vp` CLI で扱います。dead code 検出は fallow（`fallow dead-code`）を使います。
 
 ## 初回セットアップ
 
@@ -109,10 +109,10 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 
 読みやすさの改善には次をプロジェクトスコープで入れています。
 
-| スキル | 導入先 | 取得元（固定） |
-| --- | --- | --- |
+| スキル        | 導入先                       | 取得元（固定）                                                                   |
+| ------------- | ---------------------------- | -------------------------------------------------------------------------------- |
 | `i-have-adhd` | `.agents/skills/i-have-adhd` | `ayghri/i-have-adhd@v0.4.1`（commit `1ecea1993b7fce257ffbd686c070948b5e07eda6`） |
-| `yomiyasu` | `.agents/skills/yomiyasu` | `nanaism/yomiyasu@v2.5.0`（commit `29d67ccb05e370b5958d72920a9cd1aa829dee80`） |
+| `yomiyasu`    | `.agents/skills/yomiyasu`    | `nanaism/yomiyasu@v2.5.0`（commit `29d67ccb05e370b5958d72920a9cd1aa829dee80`）   |
 
 再導入の正規手順と固定リビジョンは `AGENTS.md` を見てください。`skills-lock.json` は記録補助であり、tag/commit の復元保証ではありません。
 

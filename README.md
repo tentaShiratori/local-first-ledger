@@ -6,16 +6,16 @@
 
 ## いまできること / まだないもの
 
-| 状態 | 内容                                                                                          |
-| ---- | --------------------------------------------------------------------------------------------- |
-| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                     |
-| ある | TypeScript strict の最小 Node.js 開発・テスト環境                                             |
-| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                |
-| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                 |
-| ない | G-Counter / 後勝ちレジスタ / 収束テスト                                                       |
-| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入                                      |
-| ない | E2E（v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる）                                |
-| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
+| 状態 | 内容                                                                                                                                                                           |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                                                                                      |
+| ある | TypeScript strict の最小 Node.js 開発・テスト環境                                                                                                                              |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                                                                                 |
+| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                                                                                  |
+| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                                                                                   |
+| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入                                                                                                                       |
+| ない | E2E（v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる）                                                                                                                 |
+| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功だけでは、CRDT 収束やブラウザ同期の証拠ではない。v0.1.0 の収束根拠は `src/g-counter.test.ts` と `src/lww-register.test.ts` |
 
 ## 固定しているバージョン
 
@@ -70,13 +70,15 @@ mise exec -- pnpm test:coverage
 mise exec -- pnpm build
 ```
 
-書式を直すときは `mise exec -- pnpm fmt:write` です。環境確認用の個別テストは次のとおりです。
+書式を直すときは `mise exec -- pnpm fmt:write` です。CRDT 収束テストと環境確認用テストは次のとおりです。
 
 ```bash
+mise exec -- pnpm test run src/g-counter.test.ts
+mise exec -- pnpm test run src/lww-register.test.ts
 mise exec -- pnpm test run src/env-smoke.test.ts
 ```
 
-`src/env-smoke.test.ts` と `pnpm check` の成功は開発基盤の確認だけです。CRDT の収束テストではありません。
+`src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW のテストです。
 
 ### Python（yomiyasu 検査）
 
@@ -121,7 +123,7 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 完成（ざっくり）までのバージョン順序・要件対応・ライブラリ推奨比較は次を見てください。
 
 - [docs/plan/README.md](./docs/plan/README.md): 索引と完成の定義
-- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）
+- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）※実装済み
 - [docs/plan/v0.2.0.md](./docs/plan/v0.2.0.md): 要件 1（オフライン起動・永続化）
 - [docs/plan/v0.3.0.md](./docs/plan/v0.3.0.md): 要件 2（中継差分同期）
 - [docs/plan/v0.4.0.md](./docs/plan/v0.4.0.md): 要件 3・4・5・6（競合・予算・重複候補）

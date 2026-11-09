@@ -1,7 +1,29 @@
 /**
- * 環境確認用の最小モジュール。
- * v0.1.0 の G-Counter / 後勝ちレジスタは未実装。
+ * local-first-ledger の公開 API。
+ * v0.1.0: 自作 G-Counter / 後勝ちレジスタ（ライブラリなし）。
  */
-export function environmentReadyMarker(): string {
-  return "local-first-ledger:env-ok";
-}
+
+export { environmentReadyMarker } from "./env-marker.js";
+
+export {
+  createGCounter,
+  incrementGCounter,
+  valueGCounter,
+  mergeGCounter,
+  equalsGCounter,
+  type ReplicaId,
+  type GCounterState,
+} from "./g-counter.js";
+
+export {
+  createLwwRegister,
+  writeLwwRegister,
+  valueLwwRegister,
+  mergeLwwRegister,
+  equalsLwwRegister,
+  compareStamps,
+  type Stamp,
+  type LwwRegisterState,
+} from "./lww-register.js";
+
+export { createPrng, type Prng } from "./prng.js";

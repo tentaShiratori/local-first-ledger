@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { environmentReadyMarker } from "./index.js";
+import { environmentReadyMarker } from "./env-marker.js";
 
 /**
  * 環境確認用スモークテスト。

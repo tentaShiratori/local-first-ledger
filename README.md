@@ -8,10 +8,11 @@
 
 | 状態 | 内容 |
 | --- | --- |
-| ある | `docs/plan/v0.1.0.md`（v0.1.0 の計画） |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき） |
 | ある | TypeScript strict の最小 Node.js 開発・テスト環境 |
 | ある | mise による Node / pnpm / skills CLI / Python のバージョン固定 |
 | ない | G-Counter / 後勝ちレジスタ / 収束テスト |
+| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入 |
 | 注意 | 型チェック・ビルド・スモークテスト成功は、CRDT 収束やブラウザ同期の証拠ではない |
 
 ## 固定しているバージョン
@@ -101,5 +102,14 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 
 ## 計画ドキュメント
 
-- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）の計画と受け入れ条件
+完成（ざっくり）までのバージョン順序・要件対応・ライブラリ推奨比較は次を見てください。
+
+- [docs/plan/README.md](./docs/plan/README.md): 索引と完成の定義
+- [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）
+- [docs/plan/v0.2.0.md](./docs/plan/v0.2.0.md): 要件 1（オフライン起動・永続化）
+- [docs/plan/v0.3.0.md](./docs/plan/v0.3.0.md): 要件 2（中継差分同期）
+- [docs/plan/v0.4.0.md](./docs/plan/v0.4.0.md): 要件 3・4・5・6（競合・予算・重複候補）
+- [docs/plan/v1.0.0.md](./docs/plan/v1.0.0.md): 要件 8＋統合検証＋人手 1 週間
 - [AGENTS.md](./AGENTS.md): ドキュメントを直すときの手順
+
+ライブラリ（Automerge / Yjs / Loro）は未選定です。索引の推奨は仮置きです。

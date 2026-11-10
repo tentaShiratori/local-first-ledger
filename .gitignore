@@ -4,6 +4,9 @@ node_modules/
 
 # Build outputs
 dist/
+dist-app/
+.e2e/
+dev-dist/
 
 # Test / tooling caches
 .vitest/

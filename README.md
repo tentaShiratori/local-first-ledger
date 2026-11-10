@@ -6,30 +6,35 @@
 
 ## いまできること / まだないもの
 
-| 状態 | 内容                                                                                                                                                                           |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                                                                                      |
-| ある | TypeScript strict の最小 Node.js 開発・テスト環境                                                                                                                              |
-| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                                                                                 |
-| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                                                                                  |
-| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                                                                                   |
-| ない | アプリ UI、ブラウザ永続化、中継同期、CRDT ライブラリ導入                                                                                                                       |
-| ない | E2E（v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる）                                                                                                                 |
-| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功だけでは、CRDT 収束やブラウザ同期の証拠ではない。v0.1.0 の収束根拠は `src/g-counter.test.ts` と `src/lww-register.test.ts` |
+| 状態 | 内容 |
+| ---- | ---- |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき） |
+| ある | TypeScript strict の開発・テスト環境と Vite SPA（家計簿 UI） |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定 |
+| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%） |
+| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム） |
+| ある | Yjs 明細ドキュメント、`y-indexeddb` 永続化、端末 ID、Service Worker によるオフライン起動 |
+| ある | 同一プロファイル複数タブの単一書き込み＋警告 |
+| ある | E2E（npm `e2e` + `@e2e-dev/web`。locator / assertion のみ。モデル不要） |
+| ない | 中継サーバーと端末間の差分同期（v0.3.0） |
+| ない | フィールド競合 UI、削除方針、予算カウンタ、重複候補、履歴 UI（後続） |
+| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功だけでは、オフライン起動や永続化の証拠ではない。v0.2.0 の根拠は `pnpm e2e` と `pnpm verify:offline-tabs`。端末間同期や収束もまだ主張しない |
 
 ## 固定しているバージョン
 
-| 対象                                    | 固定バージョン                                                                           | 置き場                                                           |
-| --------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| mise（前提ツール）                      | `2026.11.4` で検証                                                                       | マシンへ別途導入（下記）                                         |
-| Node.js                                 | `22.23.4`                                                                                | `mise.toml` / `mise.lock`                                        |
-| pnpm                                    | `10.33.4`                                                                                | `mise.toml` / `mise.lock` / `package.json#packageManager`        |
-| skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills`                                      |
-| Python                                  | `3.13.18`                                                                                | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
-| TypeScript                              | lockfile どおり（`pnpm-lock.yaml`）                                                      | `package.json`                                                   |
-| Vite+（lint / format / test）           | `1.5.0`（catalog 固定。同梱 Oxlint / Oxfmt / Vitest 5.1.0）                              | `pnpm-workspace.yaml` / `package.json`                           |
-| fallow（dead code）                     | `3.41.0`（完全固定）                                                                     | `package.json` / `pnpm-lock.yaml`                                |
-| `@vitest/coverage-v8`                   | `5.1.0`（catalog 固定）                                                                  | `pnpm-workspace.yaml` / `package.json`                           |
+| 対象 | 固定バージョン | 置き場 |
+| ---- | -------------- | ------ |
+| mise（前提ツール） | `2026.11.4` で検証 | マシンへ別途導入（下記） |
+| Node.js | `22.23.4` | `mise.toml` / `mise.lock` |
+| pnpm | `10.33.4` | `mise.toml` / `mise.lock` / `package.json#packageManager` |
+| skills CLI（npm パッケージ名 `skills`） | `1.7.6`（[vercel-labs/skills](https://github.com/vercel-labs/skills)、Node `>=22.20.0`） | `mise.toml` の `npm:skills` |
+| Python | `3.13.18` | `mise.toml` / `mise.lock`（yomiyasu 検査用。標準ライブラリのみ） |
+| TypeScript | lockfile どおり（`pnpm-lock.yaml`） | `package.json` |
+| Vite+（lint / format / test / build） | `1.5.0`（catalog 固定。同梱 Oxlint / Oxfmt / Vitest 5.1.0） | `pnpm-workspace.yaml` / `package.json` |
+| fallow（dead code） | `3.41.0`（完全固定） | `package.json` / `pnpm-lock.yaml` |
+| `@vitest/coverage-v8` | `5.1.0`（catalog 固定） | `pnpm-workspace.yaml` / `package.json` |
+| yjs / y-indexeddb | lockfile どおり | `package.json` |
+| e2e / `@e2e-dev/web` | lockfile どおり | `package.json` |
 
 `package.json` の `engines.node` は `^22.20.0 \|\| ^24.0.0 \|\| >=26.0.0` です。skills CLI の公式要件に合わせています。
 
@@ -70,15 +75,34 @@ mise exec -- pnpm test:coverage
 mise exec -- pnpm build
 ```
 
-書式を直すときは `mise exec -- pnpm fmt:write` です。CRDT 収束テストと環境確認用テストは次のとおりです。
+アプリ UI の開発・プレビュー:
+
+```bash
+mise exec -- pnpm dev
+mise exec -- pnpm build:app
+mise exec -- pnpm preview
+```
+
+書式を直すときは `mise exec -- pnpm fmt:write` です。CRDT 収束テスト・台帳・環境確認用テストは次のとおりです。
 
 ```bash
 mise exec -- pnpm test run src/g-counter.test.ts
 mise exec -- pnpm test run src/lww-register.test.ts
+mise exec -- pnpm test run src/ledger
 mise exec -- pnpm test run src/env-smoke.test.ts
 ```
 
-`src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW のテストです。
+ブラウザ受け入れ（初回は Chromium 導入が必要）:
+
+```bash
+mise exec -- pnpm exec e2e-web install chromium --with-deps
+mise exec -- pnpm e2e
+mise exec -- pnpm verify:offline-tabs
+```
+
+`pnpm e2e` は追加・リロード復元・端末 ID 安定を見る。`pnpm verify:offline-tabs` は e2e 公開 API に無いオフライン起動と複数タブを、Playwright で追加確認する（テレメトリは `E2E_TELEMETRY_DISABLED=1`）。
+
+`src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW のテストです。v0.2.0 の永続化・オフライン根拠は e2e と `verify:offline-tabs` です。
 
 ### Python（yomiyasu 検査）
 
@@ -111,23 +135,23 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 
 読みやすさの改善には次をプロジェクトスコープで入れています。
 
-| スキル        | 導入先                       | 取得元（固定）                                                                   |
-| ------------- | ---------------------------- | -------------------------------------------------------------------------------- |
+| スキル | 導入先 | 取得元（固定） |
+| ------ | ------ | -------------- |
 | `i-have-adhd` | `.agents/skills/i-have-adhd` | `ayghri/i-have-adhd@v0.4.1`（commit `1ecea1993b7fce257ffbd686c070948b5e07eda6`） |
-| `yomiyasu`    | `.agents/skills/yomiyasu`    | `nanaism/yomiyasu@v2.5.0`（commit `29d67ccb05e370b5958d72920a9cd1aa829dee80`）   |
+| `yomiyasu` | `.agents/skills/yomiyasu` | `nanaism/yomiyasu@v2.5.0`（commit `29d67ccb05e370b5958d72920a9cd1aa829dee80`） |
 
 再導入の正規手順と固定リビジョンは `AGENTS.md` を見てください。`skills-lock.json` は記録補助であり、tag/commit の復元保証ではありません。
 
 ## 計画ドキュメント
 
-完成（ざっくり）までのバージョン順序・要件対応・ライブラリ推奨比較は次を見てください。
+完成（ざっくり）までのバージョン順序・要件対応・ライブラリ選定は次を見てください。
 
 - [docs/plan/README.md](./docs/plan/README.md): 索引と完成の定義
 - [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）※実装済み
-- [docs/plan/v0.2.0.md](./docs/plan/v0.2.0.md): 要件 1（オフライン起動・永続化）
+- [docs/plan/v0.2.0.md](./docs/plan/v0.2.0.md): 要件 1（オフライン起動・永続化）※実装済み
 - [docs/plan/v0.3.0.md](./docs/plan/v0.3.0.md): 要件 2（中継差分同期）
 - [docs/plan/v0.4.0.md](./docs/plan/v0.4.0.md): 要件 3・4・5・6（競合・予算・重複候補）
 - [docs/plan/v1.0.0.md](./docs/plan/v1.0.0.md): 要件 8＋統合検証＋人手 1 週間
 - [AGENTS.md](./AGENTS.md): ドキュメントを直すときの手順
 
-ライブラリ（Automerge / Yjs / Loro）は未選定です。索引の推奨は仮置きです。
+ライブラリは **Yjs を採用**しています（人気で選定。旧 Automerge 推奨は上書き。詳細は索引）。

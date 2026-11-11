@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/fallow/schema.json",
-  "entry": ["web/main.ts", "e2e.config.ts", "e2e/**/*.e2e.ts"],
-  "supportEntry": ["scripts/**/*.{js,mjs,cjs,ts}"],
+  "entry": ["web/main.ts", "src/relay/cli.ts", "e2e.config.ts", "e2e/**/*.e2e.ts"],
+  "supportEntry": ["scripts/**/*.{js,mjs,cjs,ts}", "src/relay/node-ws.ts"],
   "ignorePatterns": [".e2e/**"]
 }

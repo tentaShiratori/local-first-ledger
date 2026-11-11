@@ -38,7 +38,7 @@ describe("ledger document", () => {
 
   it("sorts same-date entries by id descending and skips invalid values", () => {
     const ledger = createLedgerDocument();
-    ledger.entries.set("bad", { not: "an-entry" } as never);
+    ledger.entries.set("bad", { not: "an-entry" });
     addEntry(
       ledger,
       {

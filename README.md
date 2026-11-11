@@ -6,20 +6,21 @@
 
 ## いまできること / まだないもの
 
-| 状態 | 内容                                                                                                                                                                                                                                  |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                                                                                                                                             |
-| ある | TypeScript strict の開発・テスト環境と Vite SPA（家計簿 UI）                                                                                                                                                                          |
-| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                                                                                                                                        |
-| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                                                                                                                                         |
-| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                                                                                                                                          |
-| ある | Yjs 明細ドキュメント、`y-indexeddb` 永続化、端末 ID、Service Worker によるオフライン起動                                                                                                                                              |
-| ある | 同一プロファイル複数タブの単一書き込み＋警告                                                                                                                                                                                          |
-| ある | 中継サーバー経由の差分同期（opaque 更新ログ。サーバーは yjs を解釈しない）                                                                                                                                                            |
-| ある | E2E（npm `e2e` + `@e2e-dev/web`。locator / assertion のみ。モデル不要）                                                                                                                                                               |
-| ない | フィールド競合 UI、削除方針、予算カウンタ、重複候補、履歴 UI（後続）                                                                                                                                                                  |
-| 注意 | 型チェック・ビルド・品質チェック・スモークテスト成功だけでは、オフライン起動・永続化・同期収束の証拠ではない。v0.2.0 は `pnpm e2e` / `pnpm verify:offline-tabs`。v0.3.0 は `src/ledger/sync-relay.test.ts` / `pnpm verify:relay-sync` |
-| 注意 | 中継サーバーに認証はない。一般公開しない。ローカルまたは閉じた検証環境だけで使う                                                                                                                                                      |
+| 状態 | 内容                                                                                                                        |
+| ---- | --------------------------------------------------------------------------------------------------------------------------- |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                                   |
+| ある | TypeScript strict の開発・テスト環境と Vite SPA（家計簿 UI）                                                                |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                              |
+| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                               |
+| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                                |
+| ある | Yjs 明細ドキュメント、`y-indexeddb` 永続化、端末 ID、Service Worker によるオフライン起動                                    |
+| ある | 同一プロファイル複数タブの単一書き込み＋警告                                                                                |
+| ある | 中継サーバー経由の差分同期（opaque 更新ログ。サーバーは yjs を解釈しない）                                                  |
+| ある | フィールド単位編集、編集優先の削除、予算の足し引き、重複候補表示                                                            |
+| ある | E2E（npm `e2e` + `@e2e-dev/web`。locator / assertion のみ。モデル不要）                                                     |
+| ない | 明細履歴 UI と最終統合シナリオ（v1.0.0）                                                                                    |
+| 注意 | 型チェック・ビルド成功だけでは収束の証拠ではない。v0.4.0 は conflict / budget / duplicates と `pnpm verify:conflict-fields` |
+| 注意 | 中継サーバーに認証はない。一般公開しない。ローカルまたは閉じた検証環境だけで使う                                            |
 
 ## 固定しているバージョン
 
@@ -120,11 +121,12 @@ mise exec -- pnpm exec e2e-web install chromium --with-deps
 mise exec -- pnpm e2e
 mise exec -- pnpm verify:offline-tabs
 mise exec -- pnpm verify:relay-sync
+mise exec -- pnpm verify:conflict-fields
 ```
 
-`pnpm e2e` は追加・リロード復元・端末 ID 安定を見る。`pnpm verify:offline-tabs` はオフライン起動と複数タブを確認する。`pnpm verify:relay-sync` は 2 ブラウザコンテキストとローカル中継で、オンライン同期とオフライン中追加→復帰後の一致を確認する（テレメトリは `E2E_TELEMETRY_DISABLED=1`）。
+`pnpm e2e` は追加・リロード復元・端末 ID 安定を見る。`pnpm verify:offline-tabs` はオフライン起動と複数タブを確認する。`pnpm verify:relay-sync` はオンライン同期とオフライン中追加→復帰後の一致を確認する。`pnpm verify:conflict-fields` はオフライン中の別フィールド同時編集が復帰後に両方残ることを確認する。
 
-`src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW のテストです。v0.2.0 の永続化・オフライン根拠は e2e と `verify:offline-tabs` です。v0.3.0 の同期根拠は `sync-relay` テストと `verify:relay-sync` です。
+`src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW と v0.4.0 の conflict / budget テストです。
 
 ### Python（yomiyasu 検査）
 
@@ -172,7 +174,7 @@ Corepack の `enable` / `prepare --activate` はマシン全体の設定を変�
 - [docs/plan/v0.1.0.md](./docs/plan/v0.1.0.md): 要件 7（自作 G-Counter / 後勝ちレジスタ）※実装済み
 - [docs/plan/v0.2.0.md](./docs/plan/v0.2.0.md): 要件 1（オフライン起動・永続化）※実装済み
 - [docs/plan/v0.3.0.md](./docs/plan/v0.3.0.md): 要件 2（中継差分同期）※実装済み
-- [docs/plan/v0.4.0.md](./docs/plan/v0.4.0.md): 要件 3・4・5・6（競合・予算・重複候補）
+- [docs/plan/v0.4.0.md](./docs/plan/v0.4.0.md): 要件 3・4・5・6（競合・予算・重複候補）※実装済み
 - [docs/plan/v1.0.0.md](./docs/plan/v1.0.0.md): 要件 8＋統合検証＋人手 1 週間
 - [AGENTS.md](./AGENTS.md): ドキュメントを直すときの手順
 

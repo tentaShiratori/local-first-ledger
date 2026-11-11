@@ -1,6 +1,6 @@
 {
   "name": "local-first-ledger",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "家族共有のオフライン家計簿を作りながら CRDT を学ぶ学習用リポジトリ",
   "type": "module",
@@ -21,6 +21,7 @@
     "e2e": "pnpm build:app && E2E_TELEMETRY_DISABLED=1 e2e run",
     "verify:offline-tabs": "pnpm build:app && node scripts/verify-offline-and-tabs.mjs",
     "verify:relay-sync": "pnpm build && node scripts/verify-relay-sync.mjs",
+    "verify:conflict-fields": "pnpm build && node scripts/verify-conflict-fields.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm fmt && pnpm deadcode && pnpm test:coverage && pnpm build"
   },
   "dependencies": {

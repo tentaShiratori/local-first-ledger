@@ -147,7 +147,9 @@ button:disabled {
   gap: 0.65rem;
 }
 
-#entry-list li {
+#entry-list li,
+#budget-list li,
+#dup-list li {
   display: grid;
   grid-template-columns: 7.5rem 5.5rem 1fr;
   gap: 0.35rem 0.75rem;
@@ -159,6 +161,19 @@ button:disabled {
 #entry-list [data-testid="entry-entered-by"] {
   grid-column: 1 / -1;
   opacity: 0.9;
+}
+
+#entry-list button {
+  margin-top: 0;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+#budget-list,
+#dup-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
 }
 
 @media (max-width: 640px) {

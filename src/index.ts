@@ -3,6 +3,7 @@
  * v0.1.0: 自作 G-Counter / 後勝ちレジスタ（ライブラリなし）。
  * v0.2.0: Yjs 明細ドキュメント・端末 ID・複数タブ・永続化。
  * v0.3.0: 中継サーバー経由の差分同期（opaque 更新ログ）。
+ * v0.4.0: フィールド競合・削除編集優先・予算 PN-Counter・重複候補。
  */
 
 export { environmentReadyMarker } from "./env-marker.js";
@@ -47,10 +48,22 @@ export {
   createLedgerEntry,
   isLedgerEntry,
   ENTRIES_MAP_KEY,
+  TOMBSTONES_MAP_KEY,
   addEntry,
+  updateEntryFields,
+  deleteEntry,
+  computeTotalAmount,
+  isEntryVisible,
+  migratePlainEntriesToNestedMaps,
   createLedgerDocument,
   listEntries,
   observeEntries,
+  adjustCategoryBudget,
+  readCategoryBudget,
+  listCategoryBudgets,
+  observeBudgets,
+  findDuplicateCandidates,
+  isDuplicateCandidate,
   openLedgerPersistence,
   createLocalStorageOutboundQueue,
   createLocalStorageSyncCursor,
@@ -85,6 +98,7 @@ export {
   type RequestLock,
   type TabRole,
   type WriterLockSession,
+  type DuplicatePair,
 } from "./ledger/index.js";
 
 export {

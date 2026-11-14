@@ -3,7 +3,12 @@ import * as Y from "yjs";
 
 import { ledgerDocumentName, legacyDeviceDocumentName } from "./constants.js";
 import { migrationFlagKey } from "./document-id.js";
-import { createLedgerDocument, listEntries, type LedgerDocument } from "./document.js";
+import {
+  createLedgerDocument,
+  listEntries,
+  migratePlainEntriesToNestedMaps,
+  type LedgerDocument,
+} from "./document.js";
 
 export type LedgerPersistence = {
   ledger: LedgerDocument;
@@ -65,6 +70,9 @@ export function openLedgerPersistence(
       migrateArgs.storage = options.storage;
     }
     await maybeMigrateFromLegacyDeviceDoc(migrateArgs);
+    if (options.deviceId !== undefined) {
+      migratePlainEntriesToNestedMaps(ledger, options.deviceId);
+    }
   });
 
   return {

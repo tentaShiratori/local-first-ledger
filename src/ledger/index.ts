@@ -30,12 +30,27 @@ export {
 
 export {
   ENTRIES_MAP_KEY,
+  TOMBSTONES_MAP_KEY,
   addEntry,
+  computeTotalAmount,
   createLedgerDocument,
+  deleteEntry,
+  isEntryVisible,
   listEntries,
+  migratePlainEntriesToNestedMaps,
   observeEntries,
+  updateEntryFields,
   type LedgerDocument,
 } from "./document.js";
+
+export {
+  adjustCategoryBudget,
+  listCategoryBudgets,
+  observeBudgets,
+  readCategoryBudget,
+} from "./budget.js";
+
+export { findDuplicateCandidates, isDuplicateCandidate, type DuplicatePair } from "./duplicates.js";
 
 export {
   openLedgerPersistence,

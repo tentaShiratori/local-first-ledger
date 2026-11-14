@@ -1,0 +1,6 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "entry": ["web/main.ts", "e2e.config.ts", "e2e/**/*.e2e.ts"],
+  "supportEntry": ["scripts/**/*.{js,mjs,cjs,ts}"],
+  "ignorePatterns": [".e2e/**"]
+}

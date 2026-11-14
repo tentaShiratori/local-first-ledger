@@ -115,8 +115,18 @@ mise exec -- skills list
 mise exec -- python --version
 ```
 
-`pnpm check` は typecheck / lint / fmt / deadcode / test:coverage / build を順に実行します。個別実行は `pnpm typecheck`、`pnpm lint`、`pnpm fmt`、`pnpm deadcode`、`pnpm test:coverage`、`pnpm build` です。書式修正は `pnpm fmt:write` です。
+`pnpm check` は typecheck / lint / fmt / deadcode / test:coverage / build を順に実行します。個別実行は `pnpm typecheck`、`pnpm lint`、`pnpm fmt`、`pnpm deadcode`、`pnpm test:coverage`、`pnpm build` です。書式修正は `pnpm fmt:write` です。`pnpm build` はライブラリ（`tsc`）とアプリ（`vp build` → `dist-app/`）の両方です。
 
-品質ツール: Vite+ `1.5.0`（`vp lint` / `vp fmt` / `vp test`。同梱 Oxlint・Oxfmt・Vitest）、fallow `3.41.0`（`fallow dead-code`）、カバレッジ閾値 80%（行・分岐・関数・文）。E2E は v0.2.0 で画面ができたら npm の `e2e` パッケージで入れる方針です。
+品質ツール: Vite+ `1.5.0`（`vp lint` / `vp fmt` / `vp test` / `vp build`。同梱 Oxlint・Oxfmt・Vitest）、fallow `3.41.0`（`fallow dead-code`）、カバレッジ閾値 80%（行・分岐・関数・文）。
 
-これらの成功は、開発環境が動くことの確認です。CRDT 本体の完了ではありません。
+ブラウザ受け入れ:
+
+```bash
+mise exec -- pnpm exec e2e-web install chromium --with-deps
+mise exec -- pnpm e2e
+mise exec -- pnpm verify:offline-tabs
+```
+
+`pnpm e2e` は npm の `e2e` + `@e2e-dev/web`（locator / assertion のみ。`E2E_TELEMETRY_DISABLED=1`）。`pnpm verify:offline-tabs` はオフライン起動と複数タブの追加検証です。
+
+`pnpm check` の成功は、開発環境が動くことの確認です。オフライン起動・永続化・端末間同期の証拠にはしません。

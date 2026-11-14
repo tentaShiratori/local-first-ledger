@@ -1,0 +1,168 @@
+:root {
+  --ink: #1c241c;
+  --paper: #eef3ea;
+  --paper-deep: #d7e4d4;
+  --leaf: #1f4d3a;
+  --leaf-bright: #2f7a58;
+  --warn-bg: #fff4df;
+  --warn-ink: #6a3b00;
+  --line: color-mix(in srgb, var(--leaf) 22%, transparent);
+  /* オフライン起動のため外部フォント CDN は使わない */
+  --font-display:
+    "Iowan Old Style", "Palatino Linotype", Palatino, "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-body: "Hiragino Sans", "Yu Gothic UI", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #ffffffcc, transparent 60%),
+    linear-gradient(160deg, var(--paper), var(--paper-deep));
+}
+
+.page {
+  width: min(720px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.hero {
+  margin-bottom: 1.75rem;
+}
+
+.brand {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--leaf);
+}
+
+.hero h1 {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+  font-weight: 600;
+}
+
+.lede {
+  margin: 0;
+  max-width: 36rem;
+  line-height: 1.6;
+}
+
+.warning {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--warn-ink) 25%, transparent);
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+}
+
+.meta {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.input-panel,
+.list-panel {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+h2 {
+  margin: 0 0 0.9rem;
+  font-size: 1.05rem;
+}
+
+#entry-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.92rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+button {
+  width: fit-content;
+  margin-top: 0.25rem;
+  padding: 0.65rem 1.1rem;
+  border: 0;
+  background: var(--leaf);
+  color: #f5fff8;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--leaf-bright);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#entry-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+#entry-list li {
+  display: grid;
+  grid-template-columns: 7.5rem 5.5rem 1fr;
+  gap: 0.35rem 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+#entry-list [data-testid="entry-memo"],
+#entry-list [data-testid="entry-entered-by"] {
+  grid-column: 1 / -1;
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  #entry-list li {
+    grid-template-columns: 1fr 1fr;
+  }
+}

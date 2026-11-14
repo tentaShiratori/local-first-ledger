@@ -10,7 +10,7 @@ export default defineConfig({
       manifest: {
         name: "local-first-ledger",
         short_name: "家計簿",
-        description: "端末ごとの CRDT 明細をブラウザに保存するオフライン家計簿",
+        description: "共有ドキュメントの明細を端末に保存し中継経由で差分同期するオフライン家計簿",
         theme_color: "#1f4d3a",
         background_color: "#eef3ea",
         display: "standalone",
@@ -73,7 +73,15 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "dist/**", "dist-app/**", "node_modules/**", "**/*.config.*"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/relay/cli.ts",
+        "src/relay/node-ws.ts",
+        "dist/**",
+        "dist-app/**",
+        "node_modules/**",
+        "**/*.config.*",
+      ],
       thresholds: {
         lines: 80,
         functions: 80,

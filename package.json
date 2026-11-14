@@ -1,6 +1,6 @@
 {
   "name": "local-first-ledger",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "家族共有のオフライン家計簿を作りながら CRDT を学ぶ学習用リポジトリ",
   "type": "module",
@@ -11,6 +11,7 @@
     "build": "pnpm build:lib && pnpm build:app",
     "dev": "vp dev",
     "preview": "vp preview --host 127.0.0.1 --port 4173 --strictPort",
+    "relay": "pnpm build:lib && node dist/relay/cli.js",
     "lint": "vp lint --deny-warnings",
     "fmt": "vp fmt --check",
     "fmt:write": "vp fmt --write",
@@ -19,15 +20,18 @@
     "test:coverage": "vp test run --coverage",
     "e2e": "pnpm build:app && E2E_TELEMETRY_DISABLED=1 e2e run",
     "verify:offline-tabs": "pnpm build:app && node scripts/verify-offline-and-tabs.mjs",
+    "verify:relay-sync": "pnpm build && node scripts/verify-relay-sync.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm fmt && pnpm deadcode && pnpm test:coverage && pnpm build"
   },
   "dependencies": {
+    "ws": "^8.22.2",
     "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@e2e-dev/web": "^0.15.5",
     "@types/node": "^22.19.0",
+    "@types/ws": "^8.18.2",
     "@vitest/coverage-v8": "catalog:",
     "e2e": "^0.23.0",
     "fake-indexeddb": "^6.2.8",

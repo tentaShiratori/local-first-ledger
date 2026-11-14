@@ -3,11 +3,19 @@ import {
   addEntry,
   acquireWriterLock,
   browserRequestLock,
+  createLedgerSyncClient,
+  createLocalStorageOutboundQueue,
+  createLocalStorageSyncCursor,
   getOrCreateDeviceId,
   listEntries,
   observeEntries,
   openLedgerPersistence,
+  outboundQueueStorageKey,
+  resolveRelayUrl,
+  resolveSharedDocumentId,
+  syncCursorStorageKey,
   type LedgerEntry,
+  type SyncStatus,
   type TabRole,
 } from "../src/ledger/index.js";
 
@@ -19,29 +27,63 @@ if (root === null) {
 const abort = new AbortController();
 window.addEventListener("pagehide", () => abort.abort(), { once: true });
 
+const searchParams = new URLSearchParams(window.location.search);
 const deviceId = getOrCreateDeviceId(window.localStorage);
+const documentId = resolveSharedDocumentId({
+  searchParams,
+  storage: window.localStorage,
+});
+const relayUrl = resolveRelayUrl({
+  searchParams,
+  storage: window.localStorage,
+});
+
 const lockSession = await acquireWriterLock({
   requestLock: browserRequestLock(),
   signal: abort.signal,
 });
 const role: TabRole = lockSession.role;
 
-const persisted = openLedgerPersistence(deviceId);
+const persisted = openLedgerPersistence({
+  documentId,
+  deviceId,
+  storage: window.localStorage,
+});
 await persisted.whenSynced;
+
+const sync =
+  role === "writer"
+    ? createLedgerSyncClient({
+        doc: persisted.ledger.doc,
+        docId: documentId,
+        relayUrl,
+        outbound: createLocalStorageOutboundQueue(
+          window.localStorage,
+          outboundQueueStorageKey(documentId),
+        ),
+        cursor: createLocalStorageSyncCursor(window.localStorage, syncCursorStorageKey(documentId)),
+        onStatus: (status, detail) => {
+          renderSyncStatus(status, detail);
+        },
+      })
+    : null;
 
 root.innerHTML = `
   <main class="page">
     <header class="hero">
       <p class="brand">local-first-ledger</p>
       <h1>オフライン家計簿</h1>
-      <p class="lede">端末ごとの CRDT 明細をブラウザ内に保存します。電波なしでも入力と閲覧ができます。</p>
+      <p class="lede">共有ドキュメントの明細を端末に保存し、中継サーバー経由で差分だけ同期します。一般公開しないでください。</p>
     </header>
 
     <section id="tab-warning" class="warning" hidden role="status" data-testid="tab-warning"></section>
 
-    <section class="meta" aria-label="端末情報">
+    <section class="meta" aria-label="端末・同期情報">
       <p>端末 ID: <code data-testid="device-id">${deviceId}</code></p>
+      <p>共有ドキュメント: <code data-testid="document-id">${documentId}</code></p>
       <p>タブ役割: <span data-testid="tab-role">${role}</span></p>
+      <p>中継 URL: <code data-testid="relay-url">${relayUrl}</code></p>
+      <p>同期: <span data-testid="sync-status">idle</span></p>
     </section>
 
     <section class="input-panel" aria-labelledby="input-heading">
@@ -84,9 +126,24 @@ const warning = root.querySelector<HTMLElement>("#tab-warning");
 const form = root.querySelector<HTMLFormElement>("#entry-form");
 const list = root.querySelector<HTMLUListElement>("#entry-list");
 const submit = root.querySelector<HTMLButtonElement>('[data-testid="submit-entry"]');
+const syncStatusEl = root.querySelector<HTMLElement>('[data-testid="sync-status"]');
 
-if (warning === null || form === null || list === null || submit === null) {
+if (
+  warning === null ||
+  form === null ||
+  list === null ||
+  submit === null ||
+  syncStatusEl === null
+) {
   throw new Error("required UI nodes missing");
+}
+
+function renderSyncStatus(status: SyncStatus, detail?: string): void {
+  if (syncStatusEl === null) {
+    return;
+  }
+  syncStatusEl.textContent = detail === undefined ? status : `${status}: ${detail}`;
+  syncStatusEl.dataset.status = status;
 }
 
 function renderEntries(entries: LedgerEntry[]): void {
@@ -118,8 +175,10 @@ if (role === "follower") {
   form.querySelectorAll("input, select, button").forEach((el) => {
     el.setAttribute("disabled", "true");
   });
+  renderSyncStatus("idle", "follower tab (no relay writer)");
 } else {
   warning.hidden = true;
+  sync?.start();
 }
 
 form.addEventListener("submit", (event) => {
@@ -154,4 +213,13 @@ if (dateField instanceof HTMLInputElement) {
 renderEntries(listEntries(persisted.ledger));
 observeEntries(persisted.ledger, renderEntries);
 
+window.addEventListener(
+  "pagehide",
+  () => {
+    sync?.stop();
+  },
+  { once: true },
+);
+
 document.documentElement.dataset.appReady = "true";
+document.documentElement.dataset.documentId = documentId;

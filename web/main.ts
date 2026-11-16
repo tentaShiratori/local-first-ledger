@@ -11,6 +11,7 @@ import {
   deleteEntry,
   findDuplicateCandidates,
   getOrCreateDeviceId,
+  listAllHistoryEvents,
   listCategoryBudgets,
   listEntries,
   listHistoryForEntry,
@@ -31,6 +32,28 @@ import {
   type SyncStatus,
   type TabRole,
 } from "../src/ledger/index.js";
+
+/** 検証スクリプト用の読み取り専用スナップショット（本番機能ではない）。 */
+type LedgerVerifySnapshot = {
+  documentId: string;
+  deviceId: string;
+  totalAmount: number;
+  entries: Array<{
+    id: string;
+    date: string;
+    amount: number;
+    category: string;
+    memo: string;
+    enteredBy: string;
+  }>;
+  historyEventCount: number;
+};
+
+declare global {
+  interface Window {
+    __localFirstLedgerSnapshot?: () => LedgerVerifySnapshot;
+  }
+}
 
 const root = document.querySelector<HTMLDivElement>("#app");
 if (root === null) {
@@ -463,6 +486,21 @@ window.addEventListener(
   },
   { once: true },
 );
+
+window.__localFirstLedgerSnapshot = (): LedgerVerifySnapshot => ({
+  documentId,
+  deviceId,
+  totalAmount: computeTotalAmount(persisted.ledger),
+  entries: listEntries(persisted.ledger).map((entry) => ({
+    id: entry.id,
+    date: entry.date,
+    amount: entry.amount,
+    category: entry.category,
+    memo: entry.memo,
+    enteredBy: entry.enteredBy,
+  })),
+  historyEventCount: listAllHistoryEvents(persisted.ledger).length,
+});
 
 document.documentElement.dataset.appReady = "true";
 document.documentElement.dataset.documentId = documentId;

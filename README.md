@@ -6,22 +6,23 @@
 
 ## いまできること / まだないもの
 
-| 状態 | 内容                                                                                                                        |
-| ---- | --------------------------------------------------------------------------------------------------------------------------- |
-| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                                   |
-| ある | TypeScript strict の開発・テスト環境と Vite SPA（家計簿 UI）                                                                |
-| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                              |
-| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                               |
-| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                                |
-| ある | Yjs 明細ドキュメント、`y-indexeddb` 永続化、端末 ID、Service Worker によるオフライン起動                                    |
-| ある | 同一プロファイル複数タブの単一書き込み＋警告                                                                                |
-| ある | 中継サーバー経由の差分同期（opaque 更新ログ。サーバーは yjs を解釈しない）                                                  |
-| ある | フィールド単位編集、編集優先の削除、予算の足し引き、重複候補表示                                                            |
-| ある | 明細単位の変更履歴（アプリ側追記ログ。操作順と壁時計を分けて表示）                                                          |
-| ある | E2E（npm `e2e` + `@e2e-dev/web`。locator / assertion のみ。モデル不要）                                                     |
-| ない | 最終統合シナリオと人手 1 週間の受け入れ記録（v1.0.0 後続）                                                                  |
-| 注意 | 型チェック・ビルド成功だけでは収束の証拠ではない。履歴の収束は `src/ledger/history.test.ts` で確認する                       |
-| 注意 | 中継サーバーに認証はない。一般公開しない。ローカルまたは閉じた検証環境だけで使う                                            |
+| 状態 | 内容                                                                                                               |
+| ---- | ------------------------------------------------------------------------------------------------------------------ |
+| ある | `docs/plan/`（v0.1.0〜v1.0.0 の計画と索引。完成定義つき）                                                          |
+| ある | TypeScript strict の開発・テスト環境と Vite SPA（家計簿 UI）                                                       |
+| ある | mise による Node / pnpm / skills CLI / Python のバージョン固定                                                     |
+| ある | 品質チェック（typecheck / Vite+ lint・format・test / fallow / カバレッジ80%）                                      |
+| ある | 自作 G-Counter / 後勝ちレジスタと、3 レプリカの収束テスト（固定例・代数・seed 付きランダム）                       |
+| ある | Yjs 明細ドキュメント、`y-indexeddb` 永続化、端末 ID、Service Worker によるオフライン起動                           |
+| ある | 同一プロファイル複数タブの単一書き込み＋警告                                                                       |
+| ある | 中継サーバー経由の差分同期（opaque 更新ログ。サーバーは yjs を解釈しない）                                         |
+| ある | フィールド単位編集、編集優先の削除、予算の足し引き、重複候補表示                                                   |
+| ある | 明細単位の変更履歴（アプリ側追記ログ。操作順と壁時計を分けて表示）                                                 |
+| ある | E2E（npm `e2e` + `@e2e-dev/web`。locator / assertion のみ。モデル不要）                                            |
+| ある | 統合シナリオ検証 `pnpm verify:integration`（2 ブラウザ×5 件＋並行編集→一覧・合計一致）                             |
+| ない | 人手 1 週間の受け入れ記録（手順書は後続。記録は人が書く）                                                          |
+| 注意 | 型チェック・ビルド成功だけでは収束の証拠ではない。履歴は `history.test.ts`、統合は `verify:integration` で確認する |
+| 注意 | 中継サーバーに認証はない。一般公開しない。ローカルまたは閉じた検証環境だけで使う                                   |
 
 ## 固定しているバージョン
 
@@ -123,9 +124,10 @@ mise exec -- pnpm e2e
 mise exec -- pnpm verify:offline-tabs
 mise exec -- pnpm verify:relay-sync
 mise exec -- pnpm verify:conflict-fields
+mise exec -- pnpm verify:integration
 ```
 
-`pnpm e2e` は追加・リロード復元・端末 ID 安定を見る。`pnpm verify:offline-tabs` はオフライン起動と複数タブを確認する。`pnpm verify:relay-sync` はオンライン同期とオフライン中追加→復帰後の一致を確認する。`pnpm verify:conflict-fields` はオフライン中の別フィールド同時編集が復帰後に両方残ることを確認する。
+`pnpm e2e` は追加・リロード復元・端末 ID 安定を見る。`pnpm verify:offline-tabs` はオフライン起動と複数タブを確認する。`pnpm verify:relay-sync` はオンライン同期とオフライン中追加→復帰後の一致を確認する。`pnpm verify:conflict-fields` はオフライン中の別フィールド同時編集が復帰後に両方残ることを確認する。`pnpm verify:integration` は 2 ブラウザをオフラインにして各 5 件入力し、同じ明細を両方で編集してから復帰し、画面と内部状態の一覧・合計が一致することを確認する。
 
 `src/env-smoke.test.ts` と品質チェック単体の成功は開発基盤の確認です。CRDT の収束根拠は G-Counter / LWW と v0.4.0 の conflict / budget テストです。
 

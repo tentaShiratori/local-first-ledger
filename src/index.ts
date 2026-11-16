@@ -4,6 +4,7 @@
  * v0.2.0: Yjs 明細ドキュメント・端末 ID・複数タブ・永続化。
  * v0.3.0: 中継サーバー経由の差分同期（opaque 更新ログ）。
  * v0.4.0: フィールド競合・削除編集優先・予算 PN-Counter・重複候補。
+ * v1.0.0: 明細変更履歴（アプリ側追記ログ）・統合検証・人手受け入れ手順。
  */
 
 export { environmentReadyMarker } from "./env-marker.js";
@@ -64,6 +65,17 @@ export {
   observeBudgets,
   findDuplicateCandidates,
   isDuplicateCandidate,
+  ENTRY_HISTORY_MAP_KEY,
+  appendHistoryEvent,
+  createLocalStorageHistorySeqStore,
+  createMemoryHistorySeqStore,
+  diffEntryFields,
+  isHistoryEvent,
+  listAllHistoryEvents,
+  listHistoryForEntry,
+  observeHistory,
+  sortHistoryCausal,
+  sortHistoryWallClock,
   openLedgerPersistence,
   createLocalStorageOutboundQueue,
   createLocalStorageSyncCursor,
@@ -99,6 +111,10 @@ export {
   type TabRole,
   type WriterLockSession,
   type DuplicatePair,
+  type HistoryEvent,
+  type HistoryFieldChange,
+  type HistoryKind,
+  type HistorySeqStore,
 } from "./ledger/index.js";
 
 export {

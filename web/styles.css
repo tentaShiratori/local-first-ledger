@@ -176,6 +176,39 @@ button:disabled {
   padding: 0;
 }
 
+.history-panel {
+  margin-top: 1.75rem;
+}
+
+.history-order {
+  margin: 0.85rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+}
+
+.history-order legend {
+  padding: 0 0.35rem;
+}
+
+#history-timeline ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+#history-timeline li {
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line);
+}
+
+#entry-list li.is-selected {
+  background: color-mix(in srgb, var(--leaf-bright) 8%, transparent);
+}
+
 @media (max-width: 640px) {
   #entry-list li {
     grid-template-columns: 1fr 1fr;

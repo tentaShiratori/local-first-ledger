@@ -22,6 +22,7 @@
     "verify:offline-tabs": "pnpm build:app && node scripts/verify-offline-and-tabs.mjs",
     "verify:relay-sync": "pnpm build && node scripts/verify-relay-sync.mjs",
     "verify:conflict-fields": "pnpm build && node scripts/verify-conflict-fields.mjs",
+    "verify:integration": "pnpm build && node scripts/verify-integration.mjs",
     "check": "pnpm typecheck && pnpm lint && pnpm fmt && pnpm deadcode && pnpm test:coverage && pnpm build"
   },
   "dependencies": {

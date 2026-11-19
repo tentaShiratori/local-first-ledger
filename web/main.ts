@@ -13,15 +13,20 @@ import {
   getOrCreateDeviceId,
   listCategoryBudgets,
   listEntries,
+  listHistoryForEntry,
   observeBudgets,
   observeEntries,
+  observeHistory,
   openLedgerPersistence,
   outboundQueueStorageKey,
   resolveRelayUrl,
   resolveSharedDocumentId,
+  sortHistoryCausal,
+  sortHistoryWallClock,
   syncCursorStorageKey,
   updateEntryFields,
   type DuplicatePair,
+  type HistoryEvent,
   type LedgerEntry,
   type SyncStatus,
   type TabRole,
@@ -81,7 +86,7 @@ root.innerHTML = `
     <header class="hero">
       <p class="brand">local-first-ledger</p>
       <h1>オフライン家計簿</h1>
-      <p class="lede">フィールド単位の同期・編集優先の削除・予算の足し引き・重複候補を扱います。一般公開しないでください。</p>
+      <p class="lede">フィールド単位の同期・編集優先の削除・予算・重複候補・明細履歴を扱います。一般公開しないでください。</p>
     </header>
 
     <section id="tab-warning" class="warning" hidden role="status" data-testid="tab-warning"></section>
@@ -150,6 +155,25 @@ root.innerHTML = `
       <p class="lede">表示だけで消しません。別物として残すか、手で削除してください。</p>
       <ul id="dup-list" data-testid="dup-list"></ul>
     </section>
+
+    <section class="history-panel" aria-labelledby="history-heading">
+      <h2 id="history-heading">明細の変更履歴</h2>
+      <p class="lede" data-testid="history-order-help">
+        「操作順」は端末内の deviceSeq による並びです。壁時計は記録端末の実時間の目安で、オフライン並行では前後が入れ替わり得ます。同期の正しさは壁時計では決めません。
+      </p>
+      <fieldset class="history-order" data-testid="history-order">
+        <legend>並べ替え</legend>
+        <label>
+          <input type="radio" name="history-order" value="causal" checked data-testid="history-order-causal" />
+          操作順（端末ごと）
+        </label>
+        <label>
+          <input type="radio" name="history-order" value="wall" data-testid="history-order-wall" />
+          壁時計（実時間の目安）
+        </label>
+      </fieldset>
+      <div id="history-timeline" data-testid="history-timeline"></div>
+    </section>
   </main>
 `;
 
@@ -162,6 +186,8 @@ const totalEl = root.querySelector<HTMLElement>('[data-testid="total-amount"]');
 const budgetForm = root.querySelector<HTMLFormElement>("#budget-form");
 const budgetList = root.querySelector<HTMLUListElement>("#budget-list");
 const dupList = root.querySelector<HTMLUListElement>("#dup-list");
+const historyTimeline = root.querySelector<HTMLDivElement>("#history-timeline");
+const historyOrder = root.querySelector<HTMLFieldSetElement>('[data-testid="history-order"]');
 
 if (
   warning === null ||
@@ -172,9 +198,63 @@ if (
   totalEl === null ||
   budgetForm === null ||
   budgetList === null ||
-  dupList === null
+  dupList === null ||
+  historyTimeline === null ||
+  historyOrder === null
 ) {
   throw new Error("required UI nodes missing");
+}
+
+let historyOrderMode: "causal" | "wall" = "causal";
+let selectedHistoryEntryId: string | null = null;
+
+function formatWallClock(ms: number): string {
+  try {
+    return new Date(ms).toLocaleString("ja-JP");
+  } catch {
+    return String(ms);
+  }
+}
+
+function formatChanges(event: HistoryEvent): string {
+  if (event.changes.length === 0) {
+    return "（差分なし）";
+  }
+  return event.changes
+    .map((change) => `${change.field}: ${change.before ?? "∅"} → ${change.after ?? "∅"}`)
+    .join(" / ");
+}
+
+function renderHistory(entryId: string | null): void {
+  if (historyTimeline === null) {
+    return;
+  }
+  if (entryId === null) {
+    historyTimeline.innerHTML = `<p data-testid="history-empty">明細行をクリックすると履歴を表示します</p>`;
+    return;
+  }
+  const raw = listHistoryForEntry(persisted.ledger, entryId);
+  const events = historyOrderMode === "causal" ? sortHistoryCausal(raw) : sortHistoryWallClock(raw);
+  if (events.length === 0) {
+    historyTimeline.innerHTML = `<p data-testid="history-empty">この明細の履歴はまだありません</p>`;
+    return;
+  }
+  const orderLabel = historyOrderMode === "causal" ? "操作順" : "壁時計";
+  historyTimeline.innerHTML = `
+    <p data-testid="history-selected">対象: <code>${entryId}</code>（${orderLabel}）</p>
+    <ol data-testid="history-list">
+      ${events
+        .map(
+          (event) => `
+        <li data-testid="history-item" data-event-id="${event.eventId}" data-kind="${event.kind}">
+          <div><strong>${event.kind}</strong> / ${event.enteredBy} / 端末 <code>${event.deviceId}</code></div>
+          <div data-testid="history-when">壁時計: ${formatWallClock(event.wallClockMs)} / 操作順 #${event.deviceSeq}</div>
+          <div data-testid="history-changes">${formatChanges(event)}</div>
+        </li>`,
+        )
+        .join("")}
+    </ol>
+  `;
 }
 
 function renderSyncStatus(status: SyncStatus, detail?: string): void {
@@ -236,7 +316,8 @@ function renderEntries(entries: LedgerEntry[]): void {
   list.innerHTML = entries
     .map(
       (entry) => `
-      <li data-testid="entry-item" data-entry-id="${entry.id}">
+      <li data-testid="entry-item" data-entry-id="${entry.id}" class="${selectedHistoryEntryId === entry.id ? "is-selected" : ""}">
+        <button type="button" data-testid="show-history" data-entry-id="${entry.id}">履歴</button>
         <span data-testid="entry-date">${entry.date}</span>
         <span data-testid="entry-amount">${entry.amount}円</span>
         <span data-testid="entry-category">${entry.category}</span>
@@ -252,6 +333,7 @@ function renderEntries(entries: LedgerEntry[]): void {
       </li>`,
     )
     .join("");
+  renderHistory(selectedHistoryEntryId);
 }
 
 if (role === "follower") {
@@ -310,9 +392,6 @@ budgetForm.addEventListener("submit", (event) => {
 });
 
 list.addEventListener("click", (event) => {
-  if (role !== "writer") {
-    return;
-  }
   const target = event.target;
   if (!(target instanceof HTMLElement)) {
     return;
@@ -321,8 +400,18 @@ list.addEventListener("click", (event) => {
   if (entryId === undefined) {
     return;
   }
+  if (target.matches('[data-testid="show-history"]')) {
+    selectedHistoryEntryId = entryId;
+    renderEntries(listEntries(persisted.ledger));
+    return;
+  }
+  if (role !== "writer") {
+    return;
+  }
+  const enteredBySelect = form.elements.namedItem("enteredBy");
+  const enteredBy = enteredBySelect instanceof HTMLSelectElement ? enteredBySelect.value : "たろう";
   if (target.matches('[data-testid="delete-entry"]')) {
-    deleteEntry(persisted.ledger, entryId);
+    deleteEntry(persisted.ledger, entryId, deviceId, enteredBy);
     return;
   }
   if (target.matches('[data-testid="edit-memo"]')) {
@@ -330,7 +419,7 @@ list.addEventListener("click", (event) => {
     if (next === null) {
       return;
     }
-    updateEntryFields(persisted.ledger, entryId, { memo: next }, deviceId);
+    updateEntryFields(persisted.ledger, entryId, { memo: next }, deviceId, enteredBy);
     return;
   }
   if (target.matches('[data-testid="edit-amount"]')) {
@@ -338,7 +427,18 @@ list.addEventListener("click", (event) => {
     if (next === null) {
       return;
     }
-    updateEntryFields(persisted.ledger, entryId, { amount: Number(next) }, deviceId);
+    updateEntryFields(persisted.ledger, entryId, { amount: Number(next) }, deviceId, enteredBy);
+  }
+});
+
+historyOrder.addEventListener("change", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) {
+    return;
+  }
+  if (target.value === "causal" || target.value === "wall") {
+    historyOrderMode = target.value;
+    renderHistory(selectedHistoryEntryId);
   }
 });
 
@@ -349,8 +449,12 @@ if (dateField instanceof HTMLInputElement) {
 
 renderEntries(listEntries(persisted.ledger));
 renderBudgets(listCategoryBudgets(persisted.ledger));
+renderHistory(selectedHistoryEntryId);
 observeEntries(persisted.ledger, renderEntries);
 observeBudgets(persisted.ledger, renderBudgets);
+observeHistory(persisted.ledger, () => {
+  renderHistory(selectedHistoryEntryId);
+});
 
 window.addEventListener(
   "pagehide",

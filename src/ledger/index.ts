@@ -44,6 +44,24 @@ export {
 } from "./document.js";
 
 export {
+  ENTRY_HISTORY_MAP_KEY,
+  appendHistoryEvent,
+  createLocalStorageHistorySeqStore,
+  createMemoryHistorySeqStore,
+  diffEntryFields,
+  isHistoryEvent,
+  listAllHistoryEvents,
+  listHistoryForEntry,
+  observeHistory,
+  sortHistoryCausal,
+  sortHistoryWallClock,
+  type HistoryEvent,
+  type HistoryFieldChange,
+  type HistoryKind,
+  type HistorySeqStore,
+} from "./history.js";
+
+export {
   adjustCategoryBudget,
   listCategoryBudgets,
   observeBudgets,

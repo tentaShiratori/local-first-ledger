@@ -9,6 +9,7 @@ import {
   migratePlainEntriesToNestedMaps,
   type LedgerDocument,
 } from "./document.js";
+import { createLocalStorageHistorySeqStore, type HistorySeqStore } from "./history.js";
 
 export type LedgerPersistence = {
   ledger: LedgerDocument;
@@ -25,6 +26,7 @@ export type OpenLedgerPersistenceOptions = {
   deviceId?: string;
   storage?: Pick<Storage, "getItem" | "setItem">;
   doc?: Y.Doc;
+  historySeqStore?: HistorySeqStore;
 };
 
 /**
@@ -50,7 +52,15 @@ export function openLedgerPersistence(
         : { documentId: documentIdOrOptions, doc: maybeDoc }
       : documentIdOrOptions;
 
-  const ledger = createLedgerDocument(options.doc);
+  const historySeqStore =
+    options.historySeqStore ??
+    (options.storage !== undefined
+      ? createLocalStorageHistorySeqStore(options.storage)
+      : undefined);
+  const ledger = createLedgerDocument(
+    options.doc,
+    historySeqStore === undefined ? {} : { historySeqStore },
+  );
   const documentName = ledgerDocumentName(options.documentId);
   const persistence = new IndexeddbPersistence(documentName, ledger.doc);
   const whenSynced = persistence.whenSynced.then(async () => {

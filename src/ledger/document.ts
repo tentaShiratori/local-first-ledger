@@ -14,6 +14,13 @@ import {
   revDominates,
   snapshotRev,
 } from "./entry-map.js";
+import {
+  appendHistoryEvent,
+  createMemoryHistorySeqStore,
+  diffEntryFields,
+  type HistoryClock,
+  type HistorySeqStore,
+} from "./history.js";
 
 export const ENTRIES_MAP_KEY = "entries";
 export const TOMBSTONES_MAP_KEY = "tombstones";
@@ -24,15 +31,28 @@ export type LedgerDocument = {
   tombstones: Y.Map<unknown>;
   budgetP: Y.Map<number>;
   budgetN: Y.Map<number>;
+  /** 履歴追記用。未設定なら create 時にメモリ実装を付ける。 */
+  historySeqStore: HistorySeqStore;
+  historyNow: HistoryClock;
 };
 
-export function createLedgerDocument(doc: Y.Doc = new Y.Doc()): LedgerDocument {
+export type CreateLedgerDocumentOptions = {
+  historySeqStore?: HistorySeqStore;
+  historyNow?: HistoryClock;
+};
+
+export function createLedgerDocument(
+  doc: Y.Doc = new Y.Doc(),
+  options: CreateLedgerDocumentOptions = {},
+): LedgerDocument {
   return {
     doc,
     entries: doc.getMap(ENTRIES_MAP_KEY),
     tombstones: doc.getMap(TOMBSTONES_MAP_KEY),
     budgetP: doc.getMap("budgetP"),
     budgetN: doc.getMap("budgetN"),
+    historySeqStore: options.historySeqStore ?? createMemoryHistorySeqStore(),
+    historyNow: options.historyNow ?? Date.now,
   };
 }
 
@@ -68,7 +88,6 @@ export function migratePlainEntriesToNestedMaps(ledger: LedgerDocument, deviceId
 export function isEntryVisible(ledger: LedgerDocument, entryId: string): boolean {
   const raw = ledger.entries.get(entryId);
   if (!(raw instanceof Y.Map)) {
-    // プレーンオブジェクトは墓石が無ければ表示（移行前）
     if (readEntryFromYMap(raw) === null) {
       return false;
     }
@@ -118,6 +137,16 @@ export function addEntry(
       ledger.tombstones.delete(entry.id);
     }
   });
+  appendHistoryEvent({
+    ledger,
+    entryId: entry.id,
+    deviceId,
+    enteredBy: entry.enteredBy,
+    kind: "create",
+    changes: diffEntryFields(null, entry),
+    seqStore: ledger.historySeqStore,
+    now: ledger.historyNow,
+  });
   return entry;
 }
 
@@ -126,7 +155,9 @@ export function updateEntryFields(
   entryId: string,
   patch: Partial<NewLedgerEntryInput>,
   deviceId: string,
+  enteredBy?: string,
 ): LedgerEntry {
+  const before = readEntryFromYMap(ledger.entries.get(entryId));
   const raw = ledger.entries.get(entryId);
   if (!(raw instanceof Y.Map)) {
     const plain = readEntryFromYMap(raw);
@@ -147,6 +178,17 @@ export function updateEntryFields(
   if (updated === null) {
     throw new Error(`entry unreadable after update: ${entryId}`);
   }
+  const actor = enteredBy ?? updated.enteredBy;
+  appendHistoryEvent({
+    ledger,
+    entryId,
+    deviceId,
+    enteredBy: actor,
+    kind: "update",
+    changes: diffEntryFields(before, updated),
+    seqStore: ledger.historySeqStore,
+    now: ledger.historyNow,
+  });
   return updated;
 }
 
@@ -154,7 +196,13 @@ export function updateEntryFields(
  * 編集優先の削除: 親キーは消さず、削除時点の rev スナップショットを墓石として残す。
  * 因果を知らない並行編集が rev を進めれば、一覧では明細が残る。
  */
-export function deleteEntry(ledger: LedgerDocument, entryId: string): void {
+export function deleteEntry(
+  ledger: LedgerDocument,
+  entryId: string,
+  deviceId = "unknown-device",
+  enteredBy = "不明",
+): void {
+  const before = readEntryFromYMap(ledger.entries.get(entryId));
   const raw = ledger.entries.get(entryId);
   if (!(raw instanceof Y.Map)) {
     const plain = readEntryFromYMap(raw);
@@ -166,10 +214,20 @@ export function deleteEntry(ledger: LedgerDocument, entryId: string): void {
       ledger.entries.set(entryId, map);
       ledger.tombstones.set(entryId, snapshotRev(map));
     });
-    return;
+  } else {
+    ledger.doc.transact(() => {
+      ledger.tombstones.set(entryId, snapshotRev(raw));
+    });
   }
-  ledger.doc.transact(() => {
-    ledger.tombstones.set(entryId, snapshotRev(raw));
+  appendHistoryEvent({
+    ledger,
+    entryId,
+    deviceId,
+    enteredBy,
+    kind: "delete",
+    changes: diffEntryFields(before, null),
+    seqStore: ledger.historySeqStore,
+    now: ledger.historyNow,
   });
 }
 
